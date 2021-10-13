@@ -11,16 +11,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-
-namespace Audio_Player.Droid //TODO: figure out passing the arraylist and saving paths to disk
+namespace Audio_Player.Droid
 {
     [Activity(Label = "FolderSelectAndroid")]
-    public class FolderSelectInnitAndroid : Activity
+    public class FolderSelectInnit : Activity
     {
 
         private ArrayList selectedFolders = new ArrayList();
-        private String filePath = "/sdcard";
+        private String filePath;
         private Color buttonDefault = new Color(Resource.Color.launcher_background);
         private Color buttonHighlight = new Color(Resource.Color.black);
 
@@ -29,6 +29,18 @@ namespace Audio_Player.Droid //TODO: figure out passing the arraylist and saving
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.folder_select_android);
 
+            filePath = "/sdcard";
+
+            String[] alreadySelectedFolders = new String[0]; 
+            if(File.Exists(System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData) + "/music_dir.txt"))
+            {
+                alreadySelectedFolders = File.ReadAllLines(System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData) + "/music_dir.txt");
+                
+                for(int i = 0; i < alreadySelectedFolders.Length; i++)
+                {
+                    selectedFolders.Add(alreadySelectedFolders[i]);
+                }
+            }
             LinearLayout linear = FindViewById<LinearLayout>(Resource.Id.dir_linear);
 
             Button scroll_button = new Button(this);
@@ -36,9 +48,15 @@ namespace Audio_Player.Droid //TODO: figure out passing the arraylist and saving
             scroll_button.SetHeight(250);
             scroll_button.SetBackgroundColor(buttonDefault);
 
-            scroll_button.Click += (o, e) =>
+            /**
+             * Select Button Click
+             */
+            scroll_button.Click += async (o, e) =>
             {
-                System.Console.WriteLine("button");
+                Intent toHomePage = new Intent(this, typeof(HomePage));
+
+                await UpdateFileAsync();
+                StartActivity(toHomePage);
             };
 
             String[] cwd = Directory.GetDirectories(filePath);
@@ -47,7 +65,16 @@ namespace Audio_Player.Droid //TODO: figure out passing the arraylist and saving
             {
                 Folder folder = new Folder(this);
                 folder.setText(cwd[i]);
-                folder.Click += (o, e) =>
+
+                if (alreadySelectedFolders.Contains<String>(folder.Text))
+                {
+                    folder.changeColor();
+                }
+                
+                /**
+                 * Folder Click
+                 */
+                folder.Click += async (o, e) =>
                 {
                     //if there are no subfolders in the current directory 
                     if (Directory.GetDirectories(folder.Text).Length == 0)
@@ -59,7 +86,6 @@ namespace Audio_Player.Droid //TODO: figure out passing the arraylist and saving
 
                             if(selectedFolders.Count == 0)
                             {
-                                System.Console.WriteLine("empty");
                                 scroll_button.SetBackgroundColor(buttonDefault);
                             }
 
@@ -82,13 +108,17 @@ namespace Audio_Player.Droid //TODO: figure out passing the arraylist and saving
                         Intent refresh = new Intent(this, typeof(FolderSelectRecurse));
 
                         refresh.PutExtra("path", folder.Text);
-                        //refresh.PutExtra("selectedFolders", (IParcelable)selectedFolders);
-                        //StartActivity(refresh);
+
+                        await UpdateFileAsync();
+                        StartActivity(refresh);
                     }
 
                 };
 
-                folder.LongClick += (o, e) =>
+                /**
+                 * Folder Long Click
+                 */
+                folder.LongClick += async (o, e) =>
                 {
                     if (folder.isSelected())
                     {
@@ -97,7 +127,6 @@ namespace Audio_Player.Droid //TODO: figure out passing the arraylist and saving
 
                         if (selectedFolders.Count == 0)
                         {
-                            System.Console.WriteLine("empty");
                             scroll_button.SetBackgroundColor(buttonDefault);
                         }
 
@@ -118,9 +147,10 @@ namespace Audio_Player.Droid //TODO: figure out passing the arraylist and saving
             linear.AddView(scroll_button);
         }
 
-        private void Scroll_button_Click(object sender, EventArgs e)
+        async Task UpdateFileAsync()
         {
-            throw new NotImplementedException();
+            await File.WriteAllLinesAsync(System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData) + "/music_dir.txt",
+                                                        selectedFolders.Cast<String>());
         }
     }
 

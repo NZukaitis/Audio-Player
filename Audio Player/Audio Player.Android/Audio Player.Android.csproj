@@ -59,9 +59,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Folder.cs" />
-    <Compile Include="FolderSelectInnitAndroid.cs" />
+    <Compile Include="FolderSelectInnit.cs" />
     <Compile Include="FolderSelectRecurse.cs" />
-    <Compile Include="MainActivity.cs" />
+    <Compile Include="HomePage.cs" />
+    <Compile Include="InnitActivity.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -99,6 +100,9 @@
     <AndroidResource Include="Resources\Layout\folder_select_android.xml">
       <SubType>Designer</SubType>
     </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\Layout\home_page.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
 </Project>
