@@ -13,7 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Audio_Player.Droid //TODO: figure out passing the arraylist and saving paths to disk
+namespace Audio_Player.Droid
 {
     [Activity(Label = "FolderSelectAndroid")]
     public class FolderSelectRecurse : Activity
